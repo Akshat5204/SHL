@@ -1,7 +1,7 @@
 import streamlit as st
 from embeddings.recommender import recommend
 
-st.set_page_config(page_title="SHL Recommender")
+st.set_page_config(page_title="SHL Recommender", layout="wide")
 
 st.title("SHL Assessment Recommendation System")
 
@@ -16,7 +16,7 @@ if st.button("Recommend"):
 
         st.subheader("Recommended Assessments")
 
-        for r in results:
-            st.markdown(f"**{r['name']}**")
-            st.markdown(f"[Open Assessment]({r['url']})")
+        for idx, r in enumerate(results, 1):
+            st.markdown(f"**{idx}. {r['title']}**")
+            st.markdown(r["url"])
             st.markdown("---")

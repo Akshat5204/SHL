@@ -1,28 +1,49 @@
+import os
+import pickle
 import pandas as pd
 import numpy as np
 import faiss
-import pickle
 from sentence_transformers import SentenceTransformer
-import os
 
-data_path = "data/processed/processed_data.csv"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, "data", "processed", "processed_data.csv")
+EMB_DIR = os.path.join(BASE_DIR, "embeddings")
 
-df = pd.read_csv(data_path)
+INDEX_PATH = os.path.join(EMB_DIR, "faiss.index")
+META_PATH = os.path.join(EMB_DIR, "meta.pkl")
 
-if "search_text" not in df.columns:
-    raise ValueError("search_text column missing. Run prepare_data.py again.")
+os.makedirs(EMB_DIR, exist_ok=True)
 
-texts = df["search_text"].astype(str).tolist()
+print("Loading processed data...")
+df = pd.read_csv(DATA_PATH)
 
+# 🔑 THIS COLUMN MAKES OUTPUT RICH (VERY IMPORTANT)
+texts = df["search_text"].tolist()
+
+print("Loading embedding model...")
 model = SentenceTransformer("all-MiniLM-L6-v2")
+
+print("Creating embeddings...")
 embeddings = model.encode(texts, show_progress_bar=True)
 
+embeddings = np.array(embeddings).astype("float32")
+
+print("Building FAISS index...")
 index = faiss.IndexFlatL2(embeddings.shape[1])
-index.add(np.array(embeddings))
+index.add(embeddings)
 
-faiss.write_index(index, "embeddings/faiss.index")
+faiss.write_index(index, INDEX_PATH)
 
-with open("embeddings/meta.pkl", "wb") as f:
-    pickle.dump(df.to_dict(orient="records"), f)
+# 🔑 FULL METADATA (THIS FIXES YOUR UI)
+metadata = []
+for _, row in df.iterrows():
+    metadata.append({
+        "title": row["search_text"],
+        "assessment_name": row.get("assessment_name", ""),
+        "assessment_url": row.get("assessment_url", "")
+    })
 
-print("✅ Structured embeddings saved successfully")
+with open(META_PATH, "wb") as f:
+    pickle.dump(metadata, f)
+
+print("✅ Embeddings & metadata saved successfully")

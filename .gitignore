@@ -1,16 +1,5 @@
-# Python
+venv/
 __pycache__/
 *.pyc
-*.pyo
-
-# Virtual env
-venv/
-.env
-
-# Data / artifacts
-*.pkl
-*.faiss
-*.index
-
-# OS
-.DS_Store
+embeddings/*.index
+embeddings/*.pkl
