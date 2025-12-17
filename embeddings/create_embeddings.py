@@ -9,7 +9,10 @@ data_path = "data/processed/processed_data.csv"
 
 df = pd.read_csv(data_path)
 
-texts = df["search_text"].tolist()
+if "search_text" not in df.columns:
+    raise ValueError("search_text column missing. Run prepare_data.py again.")
+
+texts = df["search_text"].astype(str).tolist()
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 embeddings = model.encode(texts, show_progress_bar=True)
@@ -22,4 +25,4 @@ faiss.write_index(index, "embeddings/faiss.index")
 with open("embeddings/meta.pkl", "wb") as f:
     pickle.dump(df.to_dict(orient="records"), f)
 
-print("✅ Structured embeddings saved")
+print("✅ Structured embeddings saved successfully")

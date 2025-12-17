@@ -1,19 +1,16 @@
-# Virtual environments
-venv/
-.env/
-
-# Python cache
+# Python
 __pycache__/
 *.pyc
+*.pyo
 
-# OS files
+# Virtual env
+venv/
+.env
+
+# Data / artifacts
+*.pkl
+*.faiss
+*.index
+
+# OS
 .DS_Store
-Thumbs.db
-
-# Data files (optional – comment if you want to keep them)
-# data/raw/
-# data/processed/
-
-# FAISS indexes & models (optional)
-embeddings/*.index
-embeddings/*.pkl
